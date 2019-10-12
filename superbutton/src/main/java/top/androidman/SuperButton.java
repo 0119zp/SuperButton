@@ -3,7 +3,10 @@ package top.androidman;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -19,14 +22,22 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 
-
 /**
  * @author yanjie
- * @version 1.0
  * @date 2019-07-01 20:08
- * @description 超级按钮
+ * description 超级按钮
  */
 public class SuperButton extends LinearLayout {
+
+    /**
+     * value空值
+     */
+    private static final int VALUE_NULL = -1;
+    /**
+     * value默认值
+     */
+    private static final int VALUE_DEFAULT = 0;
+
     /**
      * 形状
      */
@@ -84,11 +95,11 @@ public class SuperButton extends LinearLayout {
     /**
      * 默认背景颜色
      */
-    private int mColorNormal = ResourceId.VALUE_NULL;
+    private int mColorNormal = VALUE_NULL;
     /**
      * 默认背景颜色
      */
-    private int mColorPressed = ResourceId.VALUE_NULL;
+    private int mColorPressed = VALUE_NULL;
     /**
      * 图片资源
      */
@@ -101,8 +112,8 @@ public class SuperButton extends LinearLayout {
     /**
      * 图片中间时的宽高
      */
-    private int mDrawableMiddleWidth = ResourceId.VALUE_NULL;
-    private int mDrawableMiddleHeight = ResourceId.VALUE_NULL;
+    private int mDrawableMiddleWidth = VALUE_NULL;
+    private int mDrawableMiddleHeight = VALUE_NULL;
     /**
      * 图片距离文字距离
      */
@@ -114,11 +125,11 @@ public class SuperButton extends LinearLayout {
     /**
      * 当背景是渐进色时，开始颜色
      */
-    private int mColorStart = ResourceId.VALUE_NULL;
+    private int mColorStart = VALUE_NULL;
     /**
      * 当背景是渐进色时，结束颜色
      */
-    private int mColorEnd = ResourceId.VALUE_NULL;
+    private int mColorEnd = VALUE_NULL;
     /**
      * 颜色方向
      */
@@ -130,10 +141,10 @@ public class SuperButton extends LinearLayout {
     /**
      * 四个角角度半径
      */
-    private int mCornerLeftTop = ResourceId.VALUE_NULL;
-    private int mCornerLeftBottom = ResourceId.VALUE_NULL;
-    private int mCornerRightTop = ResourceId.VALUE_NULL;
-    private int mCornerRightBottom = ResourceId.VALUE_NULL;
+    private int mCornerLeftTop = VALUE_NULL;
+    private int mCornerLeftBottom = VALUE_NULL;
+    private int mCornerRightTop = VALUE_NULL;
+    private int mCornerRightBottom = VALUE_NULL;
     /**
      * 边框颜色
      */
@@ -157,16 +168,15 @@ public class SuperButton extends LinearLayout {
     /**
      * 阴影颜色
      */
-    private int mShadowStartColor = ResourceId.VALUE_NULL;
+    private int mShadowStartColor = VALUE_NULL;
     /**
      * 阴影颜色
      */
-    private int mShadowEndColor = ResourceId.VALUE_NULL;
+    private int mShadowEndColor = VALUE_NULL;
     /**
      * 阴影大小
      */
-    private int mShadowSize = ResourceId.VALUE_NULL;
-
+    private int mShadowSize = VALUE_NULL;
 
     public SuperButton(Context context) {
         this(context, null);
@@ -181,7 +191,6 @@ public class SuperButton extends LinearLayout {
         initButton(context, attrs);
     }
 
-
     /**
      * 初始化按钮
      */
@@ -194,7 +203,7 @@ public class SuperButton extends LinearLayout {
         //按钮背景
         mButtonBackground = new GradientDrawable();
         //设置渐变色
-        if (mColorStart != ResourceId.VALUE_NULL && mColorEnd != ResourceId.VALUE_NULL) {
+        if (mColorStart != VALUE_NULL && mColorEnd != VALUE_NULL) {
             if (mColorDirection == TOP_BOTTOM) {
                 mButtonBackground.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
             } else if (mColorDirection == TR_BL) {
@@ -214,7 +223,7 @@ public class SuperButton extends LinearLayout {
             } else {
                 mButtonBackground.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);
             }
-            mButtonBackground.setColors(new int[]{mColorStart, mColorEnd});
+            mButtonBackground.setColors(new int[] { mColorStart, mColorEnd });
         } else {
             //设置填充颜色
             setButtonBackgroundColor(mColorNormal);
@@ -226,11 +235,13 @@ public class SuperButton extends LinearLayout {
             mButtonBackground.setShape(GradientDrawable.RECTANGLE);
         }
         //ordered top-left, top-right, bottom-right, bottom-left
-        mButtonBackground.setCornerRadii(new float[]{
-                mCornerLeftTop != ResourceId.VALUE_NULL ? mCornerLeftTop : mCorner, mCornerLeftTop != ResourceId.VALUE_NULL ? mCornerLeftTop : mCorner,
-                mCornerRightTop != ResourceId.VALUE_NULL ? mCornerRightTop : mCorner, mCornerRightTop != ResourceId.VALUE_NULL ? mCornerRightTop : mCorner,
-                mCornerRightBottom != ResourceId.VALUE_NULL ? mCornerRightBottom : mCorner, mCornerRightBottom != ResourceId.VALUE_NULL ? mCornerRightBottom : mCorner,
-                mCornerLeftBottom != ResourceId.VALUE_NULL ? mCornerLeftBottom : mCorner, mCornerLeftBottom != ResourceId.VALUE_NULL ? mCornerLeftBottom : mCorner});
+        mButtonBackground.setCornerRadii(new float[] {
+            mCornerLeftTop != VALUE_NULL ? mCornerLeftTop : mCorner, mCornerLeftTop != VALUE_NULL ? mCornerLeftTop : mCorner,
+            mCornerRightTop != VALUE_NULL ? mCornerRightTop : mCorner, mCornerRightTop != VALUE_NULL ? mCornerRightTop : mCorner,
+            mCornerRightBottom != VALUE_NULL ? mCornerRightBottom : mCorner,
+            mCornerRightBottom != VALUE_NULL ? mCornerRightBottom : mCorner, mCornerLeftBottom != VALUE_NULL ? mCornerLeftBottom : mCorner,
+            mCornerLeftBottom != VALUE_NULL ? mCornerLeftBottom : mCorner
+        });
 
         //设置边框颜色和边框宽度
         mButtonBackground.setStroke(mBorderWidth, mBorderColor);
@@ -266,7 +277,7 @@ public class SuperButton extends LinearLayout {
         LinearLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         if (mDrawableMiddle != null) {
             ImageView imageView = new ImageView(getContext());
-            if (mDrawableMiddleWidth == ResourceId.VALUE_NULL || mDrawableMiddleHeight == ResourceId.VALUE_NULL) {
+            if (mDrawableMiddleWidth == VALUE_NULL || mDrawableMiddleHeight == VALUE_NULL) {
                 layoutParams.width = 40;
                 layoutParams.height = 40;
             } else {
@@ -280,17 +291,66 @@ public class SuperButton extends LinearLayout {
         }
 
         //当设置的有阴影效果时
-        if (mShadowSize != ResourceId.VALUE_NULL &&
-                mShadowStartColor != ResourceId.VALUE_NULL && mShadowEndColor != ResourceId.VALUE_NULL) {
-            RoundRectHelperUtil.help();
-            RoundRectDrawableWithShadow shadowBackground = new RoundRectDrawableWithShadow(
-                    ColorStateList.valueOf(mColorNormal), mCorner,
-                    mShadowStartColor, mShadowEndColor,
+        if (mShadowSize != VALUE_NULL && mShadowStartColor != VALUE_NULL && mShadowEndColor != VALUE_NULL) {
+            setAdaptation();
+            RoundRectDrawableWithShadow shadowBackground =
+                new RoundRectDrawableWithShadow(ColorStateList.valueOf(mColorNormal), mCorner, mShadowStartColor, mShadowEndColor,
                     mShadowSize, mShadowSize);
             setBackground(shadowBackground);
         }
     }
 
+    /**
+     * 版本适配
+     */
+    private void setAdaptation() {
+        // synthetic access
+        @SuppressWarnings("WeakerAccess")
+        final RectF mCornerRect = new RectF();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            RoundRectDrawableWithShadow.sRoundRectHelper = new RoundRectDrawableWithShadow.RoundRectHelper() {
+                @Override
+                public void drawRoundRect(Canvas canvas, RectF bounds, float cornerRadius, Paint paint) {
+                    canvas.drawRoundRect(bounds, cornerRadius, cornerRadius, paint);
+                }
+            };
+        } else {
+            RoundRectDrawableWithShadow.sRoundRectHelper = new RoundRectDrawableWithShadow.RoundRectHelper() {
+                @Override
+                public void drawRoundRect(Canvas canvas, RectF bounds, float cornerRadius, Paint paint) {
+                    final float twoRadius = cornerRadius * 2;
+                    final float innerWidth = bounds.width() - twoRadius - 1;
+                    final float innerHeight = bounds.height() - twoRadius - 1;
+                    if (cornerRadius >= 1f) {
+                        // increment corner radius to account for half pixels.
+                        float roundedCornerRadius = cornerRadius + .5f;
+                        mCornerRect.set(-roundedCornerRadius, -roundedCornerRadius, roundedCornerRadius, roundedCornerRadius);
+                        int saved = canvas.save();
+                        canvas.translate(bounds.left + roundedCornerRadius, bounds.top + roundedCornerRadius);
+                        canvas.drawArc(mCornerRect, 180, 90, true, paint);
+                        canvas.translate(innerWidth, 0);
+                        canvas.rotate(90);
+                        canvas.drawArc(mCornerRect, 180, 90, true, paint);
+                        canvas.translate(innerHeight, 0);
+                        canvas.rotate(90);
+                        canvas.drawArc(mCornerRect, 180, 90, true, paint);
+                        canvas.translate(innerWidth, 0);
+                        canvas.rotate(90);
+                        canvas.drawArc(mCornerRect, 180, 90, true, paint);
+                        canvas.restoreToCount(saved);
+                        //draw top and bottom pieces
+                        canvas.drawRect(bounds.left + roundedCornerRadius - 1f, bounds.top, bounds.right - roundedCornerRadius + 1f,
+                            bounds.top + roundedCornerRadius, paint);
+
+                        canvas.drawRect(bounds.left + roundedCornerRadius - 1f, bounds.bottom - roundedCornerRadius,
+                            bounds.right - roundedCornerRadius + 1f, bounds.bottom, paint);
+                    }
+                    // center
+                    canvas.drawRect(bounds.left, bounds.top + cornerRadius, bounds.right, bounds.bottom - cornerRadius, paint);
+                }
+            };
+        }
+    }
 
     /**
      * 在自动缩放模式下设置drawable边框
@@ -301,7 +361,6 @@ public class SuperButton extends LinearLayout {
         }
         drawable.setBounds(0, 0, size, size);
     }
-
 
     /**
      * 设置不可点击颜色，此时按钮点击无反应
@@ -324,7 +383,7 @@ public class SuperButton extends LinearLayout {
      * 设置按钮颜色以及是否可以点击
      * 不影响color_pressed的值
      *
-     * @param color           设置按钮的color_normal值
+     * @param color 设置按钮的color_normal值
      * @param buttonClickable 设置按钮是否可点击
      */
     public void setButtonClickable(@ColorInt int color, boolean buttonClickable) {
@@ -360,12 +419,12 @@ public class SuperButton extends LinearLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!mButtonClickable) {
+        if (!mButtonClickable || mShadowSize > 0) {
             return true;
         }
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                setButtonBackgroundColor(mColorPressed == ResourceId.VALUE_NULL ? mColorNormal : mColorPressed);
+                setButtonBackgroundColor(mColorPressed == VALUE_NULL ? mColorNormal : mColorPressed);
                 break;
             case MotionEvent.ACTION_UP:
                 setButtonBackgroundColor(mColorNormal);
@@ -414,15 +473,15 @@ public class SuperButton extends LinearLayout {
             }
             //文字大小
             if (attr == R.styleable.SuperButton_textSize) {
-                mTextSize = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_DEFAULT);
+                mTextSize = typedArray.getDimensionPixelSize(attr, VALUE_DEFAULT);
             }
             //默认背景颜色
             if (attr == R.styleable.SuperButton_color_normal) {
-                mColorNormal = typedArray.getColor(attr, ResourceId.VALUE_NULL);
+                mColorNormal = typedArray.getColor(attr, VALUE_NULL);
             }
             //按压状态颜色
             if (attr == R.styleable.SuperButton_color_pressed) {
-                mColorPressed = typedArray.getColor(attr, ResourceId.VALUE_NULL);
+                mColorPressed = typedArray.getColor(attr, VALUE_NULL);
             }
             //图片在文字左边
             if (attr == R.styleable.SuperButton_drawable_left) {
@@ -446,11 +505,11 @@ public class SuperButton extends LinearLayout {
             }
             //图片的宽度
             if (attr == R.styleable.SuperButton_drawable_middle_width) {
-                mDrawableMiddleWidth = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_DEFAULT);
+                mDrawableMiddleWidth = typedArray.getDimensionPixelSize(attr, VALUE_DEFAULT);
             }
             //图片的高度
             if (attr == R.styleable.SuperButton_drawable_middle_height) {
-                mDrawableMiddleHeight = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_DEFAULT);
+                mDrawableMiddleHeight = typedArray.getDimensionPixelSize(attr, VALUE_DEFAULT);
             }
             //自动适应文字的大小
             if (attr == R.styleable.SuperButton_drawable_auto) {
@@ -462,7 +521,7 @@ public class SuperButton extends LinearLayout {
             }
             //图片距离文字距离
             if (attr == R.styleable.SuperButton_drawable_padding) {
-                mDrawablePadding = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_DEFAULT);
+                mDrawablePadding = typedArray.getDimensionPixelSize(attr, VALUE_DEFAULT);
             }
             //形状
             if (attr == R.styleable.SuperButton_shape) {
@@ -482,23 +541,23 @@ public class SuperButton extends LinearLayout {
             }
             //所有角圆角半径
             if (attr == R.styleable.SuperButton_corner) {
-                mCorner = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_DEFAULT);
+                mCorner = typedArray.getDimensionPixelSize(attr, VALUE_DEFAULT);
             }
             //左上角圆角半径
             if (attr == R.styleable.SuperButton_corner_left_top) {
-                mCornerLeftTop = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_NULL);
+                mCornerLeftTop = typedArray.getDimensionPixelSize(attr, VALUE_NULL);
             }
             //右上角圆角半径
             if (attr == R.styleable.SuperButton_corner_right_top) {
-                mCornerRightTop = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_NULL);
+                mCornerRightTop = typedArray.getDimensionPixelSize(attr, VALUE_NULL);
             }
             //左下角圆角半径
             if (attr == R.styleable.SuperButton_corner_left_bottom) {
-                mCornerLeftBottom = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_NULL);
+                mCornerLeftBottom = typedArray.getDimensionPixelSize(attr, VALUE_NULL);
             }
             //右下角圆角半径
             if (attr == R.styleable.SuperButton_corner_right_bottom) {
-                mCornerRightBottom = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_NULL);
+                mCornerRightBottom = typedArray.getDimensionPixelSize(attr, VALUE_NULL);
             }
             //边框宽度
             if (attr == R.styleable.SuperButton_border_width) {
@@ -514,19 +573,17 @@ public class SuperButton extends LinearLayout {
             }
             //阴影开始颜色
             if (attr == R.styleable.SuperButton_color_shadow_start) {
-                mShadowStartColor = typedArray.getColor(attr, ResourceId.VALUE_NULL);
+                mShadowStartColor = typedArray.getColor(attr, VALUE_NULL);
             }
             //阴影结束颜色
             if (attr == R.styleable.SuperButton_color_shadow_end) {
-                mShadowEndColor = typedArray.getColor(attr, ResourceId.VALUE_NULL);
+                mShadowEndColor = typedArray.getColor(attr, VALUE_NULL);
             }
             //阴影大小
             if (attr == R.styleable.SuperButton_shadow_size) {
-                mShadowSize = typedArray.getDimensionPixelSize(attr, ResourceId.VALUE_NULL);
+                mShadowSize = typedArray.getDimensionPixelSize(attr, VALUE_NULL);
             }
-
         }
         typedArray.recycle();
     }
-
 }
