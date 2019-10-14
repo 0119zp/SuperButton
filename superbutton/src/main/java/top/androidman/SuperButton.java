@@ -25,7 +25,8 @@ import androidx.annotation.Nullable;
 /**
  * @author yanjie
  * @date 2019-07-01 20:08
- * description 超级按钮
+ * description 超级按钮：TextView + GradientDrawable 背景
+ * GradientDrawable ： https://www.cnblogs.com/popfisher/p/5606690.html
  */
 public class SuperButton extends LinearLayout {
 
